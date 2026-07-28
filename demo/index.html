@@ -3,96 +3,377 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="跨框架的哔哩哔哩个人资料 Web Component" />
-    <title>Bili Info Card</title>
+    <meta name="description" content="输入 B 站 UID，即时生成可嵌入任何网站的个人资料卡片。" />
+    <meta name="theme-color" content="#f7f7fb" />
+    <title>Bili Info Card · B 站个人名片组件</title>
     <script type="module" src="/bilibili-user-card.js"></script>
     <style>
       :root {
-        color: #18191c;
-        background: #f6f7fb;
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #19191f;
+        background: #f7f7fb;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+        font-synthesis: none;
       }
 
-      * { box-sizing: border-box; }
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
 
       body {
         min-height: 100vh;
         margin: 0;
         background:
-          radial-gradient(circle at 12% 15%, rgb(251 114 153 / 15%), transparent 26rem),
-          radial-gradient(circle at 86% 78%, rgb(0 174 236 / 13%), transparent 26rem),
-          #f6f7fb;
+          radial-gradient(circle at 8% 2%, rgb(255 126 164 / 16%), transparent 26rem),
+          radial-gradient(circle at 94% 42%, rgb(0 174 236 / 12%), transparent 30rem),
+          linear-gradient(#f8f8fc, #f5f7fb);
       }
 
-      main {
-        width: min(100% - 32px, 1040px);
-        margin: 0 auto;
-        padding: 56px 0;
+      body::before {
+        position: fixed;
+        z-index: -1;
+        inset: 0;
+        opacity: 0.35;
+        background-image: radial-gradient(rgb(25 25 31 / 12%) 0.65px, transparent 0.65px);
+        background-size: 18px 18px;
+        mask-image: linear-gradient(to bottom, black, transparent 70%);
+        content: "";
+        pointer-events: none;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button,
+      a {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .site-header,
+      main,
+      .site-footer {
+        width: min(calc(100% - 40px), 1160px);
+        margin-inline: auto;
+      }
+
+      .site-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 76px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: inherit;
+        font-size: 14px;
+        font-weight: 820;
+        letter-spacing: -0.02em;
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        color: white;
+        font-size: 13px;
+        background: linear-gradient(145deg, #ff8aae, #fb7299 70%);
+        border-radius: 11px;
+        box-shadow: 0 8px 20px rgb(251 114 153 / 28%);
+      }
+
+      .header-links {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .header-link {
+        padding: 8px 12px;
+        color: #61616b;
+        font-size: 13px;
+        font-weight: 650;
+        text-decoration: none;
+        border-radius: 10px;
+      }
+
+      .header-link:hover {
+        color: #19191f;
+        background: rgb(255 255 255 / 70%);
+      }
+
+      .hero {
+        display: grid;
+        justify-items: center;
+        padding: 64px 0 54px;
+        text-align: center;
       }
 
       .eyebrow {
-        margin: 0 0 12px;
-        color: #fb7299;
-        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 18px;
+        padding: 7px 12px;
+        color: #cf4e76;
+        font-size: 12px;
         font-weight: 800;
-        letter-spacing: .13em;
+        letter-spacing: 0.08em;
+        background: rgb(255 255 255 / 72%);
+        border: 1px solid rgb(251 114 153 / 20%);
+        border-radius: 999px;
+        box-shadow: 0 8px 30px rgb(56 36 43 / 6%);
         text-transform: uppercase;
       }
 
+      .eyebrow-dot {
+        width: 7px;
+        height: 7px;
+        background: #fb7299;
+        border-radius: 50%;
+        box-shadow: 0 0 0 4px rgb(251 114 153 / 14%);
+      }
+
       h1 {
-        max-width: 680px;
+        max-width: 820px;
         margin: 0;
-        font-size: clamp(34px, 6vw, 60px);
+        font-size: clamp(42px, 7vw, 76px);
         line-height: 1.04;
-        letter-spacing: -.055em;
+        letter-spacing: -0.065em;
+      }
+
+      .accent {
+        color: #e75885;
       }
 
       .lead {
-        max-width: 650px;
-        margin: 18px 0 0;
-        color: #61666d;
-        font-size: 17px;
+        max-width: 660px;
+        margin: 22px 0 0;
+        color: #676772;
+        font-size: clamp(15px, 2vw, 18px);
         line-height: 1.75;
       }
 
-      .showcase {
-        display: grid;
-        grid-template-columns: minmax(0, 480px) minmax(250px, 1fr);
-        gap: 32px;
-        align-items: center;
-        margin-top: 40px;
+      .uid-form {
+        width: min(100%, 620px);
+        margin-top: 32px;
       }
 
-      .preview {
+      .uid-control {
+        display: flex;
+        gap: 8px;
+        padding: 7px;
+        background: rgb(255 255 255 / 86%);
+        border: 1px solid rgb(25 25 31 / 9%);
+        border-radius: 18px;
+        box-shadow:
+          0 18px 50px rgb(33 35 48 / 10%),
+          inset 0 1px rgb(255 255 255 / 85%);
+        backdrop-filter: blur(18px);
+      }
+
+      .uid-prefix {
+        display: grid;
+        flex: 0 0 46px;
+        color: #9a9aa4;
+        font-size: 12px;
+        font-weight: 800;
+        place-items: center;
+        background: #f3f3f7;
+        border-radius: 12px;
+      }
+
+      .uid-input {
         min-width: 0;
+        flex: 1;
+        padding: 12px 4px;
+        color: #19191f;
+        font-size: 16px;
+        font-variant-numeric: tabular-nums;
+        font-weight: 680;
+        background: transparent;
+        border: 0;
+        outline: none;
+      }
+
+      .uid-input::placeholder {
+        color: #b0b0b9;
+        font-weight: 500;
+      }
+
+      .uid-control:focus-within {
+        border-color: rgb(251 114 153 / 58%);
+        box-shadow:
+          0 20px 55px rgb(33 35 48 / 12%),
+          0 0 0 4px rgb(251 114 153 / 10%);
+      }
+
+      .uid-input[aria-invalid="true"] {
+        color: #d9365d;
+      }
+
+      .preview-button {
+        flex: 0 0 auto;
+        padding: 0 22px;
+        color: white;
+        font-size: 14px;
+        font-weight: 800;
+        cursor: pointer;
+        background: linear-gradient(145deg, #ff87aa, #f45f8b);
+        border: 0;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgb(244 95 139 / 24%);
+        transition: transform 150ms ease, box-shadow 150ms ease;
+      }
+
+      .preview-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 11px 24px rgb(244 95 139 / 30%);
+      }
+
+      .form-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        min-height: 30px;
+        margin-top: 8px;
+        padding: 0 6px;
+        color: #92929d;
+        font-size: 12px;
+      }
+
+      .example-button {
+        padding: 4px 0;
+        color: #d6567d;
+        cursor: pointer;
+        background: transparent;
+        border: 0;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .workspace {
+        position: relative;
+        overflow: hidden;
+        padding: 18px;
+        background: rgb(255 255 255 / 65%);
+        border: 1px solid rgb(255 255 255 / 90%);
+        border-radius: 30px;
+        box-shadow:
+          0 26px 80px rgb(35 38 53 / 11%),
+          inset 0 0 0 1px rgb(25 25 31 / 4%);
+        backdrop-filter: blur(24px);
+      }
+
+      .workspace::before {
+        position: absolute;
+        width: 260px;
+        height: 260px;
+        top: -110px;
+        left: -80px;
+        background: rgb(251 114 153 / 13%);
+        border-radius: 50%;
+        filter: blur(30px);
+        content: "";
+        pointer-events: none;
+      }
+
+      .workspace-bar {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 3px 3px 16px;
+      }
+
+      .workspace-title {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin: 0;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .live-dot {
+        width: 8px;
+        height: 8px;
+        background: #39c47a;
+        border: 2px solid white;
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px rgb(57 196 122 / 16%);
       }
 
       .layout-switch {
         display: inline-flex;
-        gap: 4px;
-        margin-bottom: 14px;
-        padding: 4px;
-        background: rgb(255 255 255 / 82%);
-        border: 1px solid #e3e5e7;
-        border-radius: 999px;
-        box-shadow: 0 5px 18px rgb(24 25 28 / 7%);
+        gap: 3px;
+        padding: 3px;
+        background: #ededf2;
+        border-radius: 11px;
       }
 
       .layout-switch button {
-        padding: 7px 14px;
-        color: #61666d;
-        font: inherit;
-        font-size: 13px;
-        font-weight: 700;
+        min-width: 62px;
+        padding: 7px 12px;
+        color: #74747e;
+        font-size: 12px;
+        font-weight: 750;
         cursor: pointer;
         background: transparent;
         border: 0;
-        border-radius: 999px;
+        border-radius: 8px;
       }
 
       .layout-switch button[aria-pressed="true"] {
-        color: #fff;
-        background: #fb7299;
+        color: #24242a;
+        background: white;
+        box-shadow: 0 3px 10px rgb(24 25 28 / 9%);
+      }
+
+      .showcase {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 1.12fr) minmax(360px, 0.88fr);
+        min-height: 590px;
+        overflow: hidden;
+        background: #f1f2f7;
+        border: 1px solid rgb(25 25 31 / 5%);
+        border-radius: 20px;
+      }
+
+      .preview-stage {
+        display: grid;
+        align-content: center;
+        justify-items: center;
+        min-width: 0;
+        padding: 48px 34px;
+        background:
+          radial-gradient(circle at 50% 46%, rgb(255 255 255 / 94%), transparent 18rem),
+          linear-gradient(145deg, #f6eef3, #edf4fa);
+      }
+
+      .preview-label {
+        margin: 0 0 16px;
+        color: #9999a4;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
       }
 
       bilibili-user-card {
@@ -100,93 +381,579 @@
       }
 
       .usage {
+        display: flex;
         min-width: 0;
+        flex-direction: column;
+        justify-content: center;
+        padding: 44px 38px;
+        background: rgb(255 255 255 / 91%);
+        border-left: 1px solid rgb(25 25 31 / 6%);
+      }
+
+      .step {
+        margin: 0;
+        color: #e25d86;
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
       }
 
       .usage h2 {
-        margin: 0 0 14px;
-        font-size: 18px;
+        margin: 10px 0 8px;
+        font-size: clamp(24px, 3vw, 32px);
+        letter-spacing: -0.045em;
+      }
+
+      .usage-lead {
+        margin: 0 0 22px;
+        color: #777781;
+        font-size: 13px;
+        line-height: 1.65;
+      }
+
+      .code-shell {
+        overflow: hidden;
+        background: #181a22;
+        border: 1px solid rgb(255 255 255 / 8%);
+        border-radius: 16px;
+        box-shadow: 0 18px 40px rgb(25 27 36 / 17%);
+      }
+
+      .code-bar {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        height: 44px;
+        padding: 0 9px 0 15px;
+        color: #888d9d;
+        font-size: 11px;
+        background: #20232d;
+        border-bottom: 1px solid rgb(255 255 255 / 7%);
+      }
+
+      .code-dots {
+        display: flex;
+        gap: 7px;
+        justify-self: start;
+      }
+
+      .code-dots span {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        box-shadow: inset 0 -1px 1px rgb(0 0 0 / 18%);
+      }
+
+      .code-dots .dot-close {
+        background: #ff5f57;
+      }
+
+      .code-dots .dot-minimize {
+        background: #febc2e;
+      }
+
+      .code-dots .dot-expand {
+        background: #28c840;
+      }
+
+      .code-filename {
+        color: #9ba0af;
+        font-size: 11px;
+        font-weight: 650;
+        justify-self: center;
+      }
+
+      .copy-button {
+        justify-self: end;
+        padding: 6px 9px;
+        color: #b6bac7;
+        cursor: pointer;
+        background: #282b36;
+        border: 0;
+        border-radius: 7px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .copy-button:hover {
+        color: white;
+        background: #343846;
       }
 
       pre {
+        min-height: 198px;
         margin: 0;
         overflow: auto;
-        padding: 18px;
-        color: #e5e9f0;
+        padding: 20px;
+        color: #dfe5f2;
+        font-size: 12px;
+        line-height: 1.75;
+        tab-size: 2;
+        background:
+          linear-gradient(90deg, rgb(255 255 255 / 2%), transparent 28px),
+          #181a22;
+        text-shadow: 0 1px rgb(0 0 0 / 25%);
+      }
+
+      .usage-note {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .mini-feature {
+        padding: 12px;
+        background: #f7f7fa;
+        border: 1px solid #eeeeF2;
+        border-radius: 12px;
+      }
+
+      .mini-feature strong {
+        display: block;
+        font-size: 12px;
+      }
+
+      .mini-feature span {
+        display: block;
+        margin-top: 3px;
+        color: #9999a3;
+        font-size: 11px;
+        line-height: 1.45;
+      }
+
+      .features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        padding: 64px 0 24px;
+      }
+
+      .feature {
+        padding: 24px;
+        background: rgb(255 255 255 / 58%);
+        border: 1px solid rgb(25 25 31 / 7%);
+        border-radius: 18px;
+      }
+
+      .feature-icon {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        color: #d9537b;
+        place-items: center;
+        background: rgb(251 114 153 / 11%);
+        border-radius: 11px;
+        font-size: 15px;
+        font-weight: 900;
+      }
+
+      .feature h3 {
+        margin: 16px 0 7px;
+        font-size: 15px;
+      }
+
+      .feature p {
+        margin: 0;
+        color: #7f7f89;
         font-size: 13px;
         line-height: 1.65;
-        background: #171b24;
-        border-radius: 14px;
-        box-shadow: 0 12px 32px rgb(24 25 28 / 12%);
       }
 
-      .note {
-        margin: 15px 0 0;
-        color: #9499a0;
-        font-size: 13px;
-        line-height: 1.6;
+      .site-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 28px 0 40px;
+        color: #9b9ba4;
+        font-size: 12px;
+        border-top: 1px solid rgb(25 25 31 / 7%);
       }
 
-      @media (max-width: 820px) {
-        main { padding: 40px 0; }
-        .showcase { grid-template-columns: 1fr; gap: 28px; }
+      .site-footer a {
+        color: #6f6f79;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .sr-only {
+        position: absolute;
+        overflow: hidden;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        white-space: nowrap;
+        border: 0;
+        clip: rect(0, 0, 0, 0);
+      }
+
+      @media (max-width: 900px) {
+        .hero {
+          padding-top: 44px;
+        }
+
+        .showcase {
+          grid-template-columns: 1fr;
+        }
+
+        .usage {
+          border-top: 1px solid rgb(25 25 31 / 6%);
+          border-left: 0;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .site-header,
+        main,
+        .site-footer {
+          width: min(calc(100% - 24px), 1160px);
+        }
+
+        .header-link:first-child {
+          display: none;
+        }
+
+        .hero {
+          padding: 38px 0 42px;
+        }
+
+        h1 {
+          font-size: clamp(38px, 13vw, 54px);
+        }
+
+        .lead {
+          font-size: 15px;
+        }
+
+        .uid-control {
+          display: grid;
+          grid-template-columns: 42px 1fr;
+        }
+
+        .preview-button {
+          grid-column: 1 / -1;
+          min-height: 45px;
+        }
+
+        .form-meta {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .workspace {
+          padding: 10px;
+          border-radius: 22px;
+        }
+
+        .workspace-bar {
+          align-items: flex-start;
+          flex-direction: column;
+          padding: 8px 8px 14px;
+        }
+
+        .preview-stage {
+          padding: 34px 16px;
+        }
+
+        .usage {
+          padding: 34px 22px;
+        }
+
+        .usage-note,
+        .features {
+          grid-template-columns: 1fr;
+        }
+
+        .features {
+          padding-top: 36px;
+        }
+
+        .site-footer {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        .preview-button {
+          transition: none;
+        }
       }
     </style>
   </head>
   <body>
-    <main>
-      <p class="eyebrow">Web Component</p>
-      <h1>只填一个 UID，展示你的 B 站名片。</h1>
-      <p class="lead">
-        原生 Custom Element，带 Shadow DOM 样式隔离。普通 HTML、博客、Vue、React、
-        Astro 等环境都能使用。
-      </p>
+    <header class="site-header">
+      <a class="brand" href="/">
+        <span class="brand-mark">B</span>
+        <span>Bili Info Card</span>
+      </a>
+      <nav class="header-links" aria-label="页面导航">
+        <a class="header-link" href="#preview">在线预览</a>
+        <a
+          class="header-link"
+          href="https://github.com/LJL17378/bili-info-card"
+          target="_blank"
+          rel="noopener noreferrer"
+        >GitHub ↗</a>
+      </nav>
+    </header>
 
-      <section class="showcase">
-        <div class="preview">
+    <main>
+      <section class="hero">
+        <p class="eyebrow"><span class="eyebrow-dot"></span>Web Component · v0.2</p>
+        <h1>把你的 B 站主页，变成一张<span class="accent">精致名片</span>。</h1>
+        <p class="lead">
+          输入 UID 即时预览。一个原生标签，便可嵌入博客、Vue、React、Astro
+          或任何支持 HTML 的页面。
+        </p>
+
+        <form class="uid-form" id="uid-form" novalidate>
+          <label class="sr-only" for="uid-input">哔哩哔哩 UID</label>
+          <div class="uid-control">
+            <span class="uid-prefix">UID</span>
+            <input
+              class="uid-input"
+              id="uid-input"
+              name="uid"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              maxlength="20"
+              pattern="[0-9]{1,20}"
+              placeholder="输入任意 B 站用户 UID"
+              aria-describedby="uid-status"
+            />
+            <button class="preview-button" type="submit">生成预览 →</button>
+          </div>
+          <div class="form-meta">
+            <span id="uid-status" role="status">支持 1–20 位纯数字 UID</span>
+            <button class="example-button" type="button" id="example-button">
+              使用示例 UID：7900967
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="workspace" id="preview" aria-labelledby="preview-title">
+        <div class="workspace-bar">
+          <h2 class="workspace-title" id="preview-title">
+            <span class="live-dot"></span>实时组件预览
+          </h2>
           <div class="layout-switch" aria-label="卡片排版方向">
             <button type="button" data-layout="horizontal" aria-pressed="true">横向</button>
             <button type="button" data-layout="vertical" aria-pressed="false">垂直</button>
           </div>
-          <bilibili-user-card
-            uid="7900967"
-            endpoint="/api/bilibili/user/{uid}"
-          ></bilibili-user-card>
         </div>
 
-        <div class="usage">
-          <h2>最小用法</h2>
-          <pre><code>&lt;script type="module"
-  src="https://bili-info-card.vercel.app/bilibili-user-card.js"&gt;
-&lt;/script&gt;
+        <div class="showcase">
+          <div class="preview-stage">
+            <p class="preview-label">Live preview</p>
+            <bilibili-user-card
+              uid="7900967"
+              endpoint="/api/bilibili/user/{uid}"
+            ></bilibili-user-card>
+          </div>
 
-&lt;bilibili-user-card
-  uid="7900967"&gt;
-&lt;/bilibili-user-card&gt;</code></pre>
-          <p class="note">
-            卡片每次打开页面都会请求 API；服务端缓存十分钟，减少 B 站风控与无意义的重复请求。
-          </p>
+          <div class="usage">
+            <p class="step">01 · Copy & paste</p>
+            <h2>两行代码，随处使用</h2>
+            <p class="usage-lead">
+              数据请求、加载状态、响应式布局和样式隔离都由组件负责。
+            </p>
+
+            <div class="code-shell">
+              <div class="code-bar">
+                <span class="code-dots" aria-hidden="true">
+                  <span class="dot-close"></span>
+                  <span class="dot-minimize"></span>
+                  <span class="dot-expand"></span>
+                </span>
+                <span class="code-filename">index.html</span>
+                <button class="copy-button" id="copy-button" type="button">复制代码</button>
+              </div>
+              <pre><code id="usage-code"></code></pre>
+            </div>
+
+            <div class="usage-note">
+              <div class="mini-feature">
+                <strong>零框架依赖</strong>
+                <span>浏览器原生 Custom Element</span>
+              </div>
+              <div class="mini-feature">
+                <strong>服务端缓存</strong>
+                <span>降低延迟与接口请求频率</span>
+              </div>
+            </div>
+          </div>
         </div>
+      </section>
+
+      <section class="features" aria-label="组件特性">
+        <article class="feature">
+          <span class="feature-icon">&lt;/&gt;</span>
+          <h3>跨框架</h3>
+          <p>最终注册为浏览器标准标签，在普通 HTML、博客和主流框架中保持一致。</p>
+        </article>
+        <article class="feature">
+          <span class="feature-icon">◇</span>
+          <h3>样式隔离</h3>
+          <p>Shadow DOM 防止博客全局样式破坏卡片，同时开放 CSS 变量和 Parts。</p>
+        </article>
+        <article class="feature">
+          <span class="feature-icon">↕</span>
+          <h3>自由排版</h3>
+          <p>横向与垂直布局即时切换，适配正文、侧栏、主页等不同展示空间。</p>
+        </article>
       </section>
     </main>
 
+    <footer class="site-footer">
+      <span>Bili Info Card · Made for the open web.</span>
+      <a href="https://github.com/LJL17378/bili-info-card">查看源码与完整文档 ↗</a>
+    </footer>
+
     <script>
+      const DEFAULT_UID = '7900967'
       const card = document.querySelector('bilibili-user-card')
+      const form = document.querySelector('#uid-form')
+      const input = document.querySelector('#uid-input')
+      const status = document.querySelector('#uid-status')
+      const exampleButton = document.querySelector('#example-button')
       const layoutButtons = document.querySelectorAll('[data-layout]')
+      const usageCode = document.querySelector('#usage-code')
+      const copyButton = document.querySelector('#copy-button')
+      const params = new URLSearchParams(window.location.search)
+
+      function isValidUid(value) {
+        return /^\d{1,20}$/.test(value)
+      }
+
+      function currentLayout() {
+        return card.getAttribute('layout') === 'vertical'
+          ? 'vertical'
+          : 'horizontal'
+      }
+
+      function updateCode() {
+        const uid = card.getAttribute('uid')
+        const layoutLine = currentLayout() === 'vertical'
+          ? '\n  layout="vertical"'
+          : ''
+
+        usageCode.textContent = `<script type="module"
+  src="https://bili-info-card.vercel.app/bilibili-user-card.js">
+<${'/'}script>
+
+<bilibili-user-card
+  uid="${uid}"${layoutLine}>
+<${'/'}bilibili-user-card>`
+      }
+
+      function applyLayout(layout, updateUrl = true) {
+        if (layout === 'vertical') {
+          card.setAttribute('layout', 'vertical')
+        } else {
+          card.removeAttribute('layout')
+          layout = 'horizontal'
+        }
+
+        for (const button of layoutButtons) {
+          button.setAttribute(
+            'aria-pressed',
+            String(button.dataset.layout === layout),
+          )
+        }
+
+        if (updateUrl) {
+          const url = new URL(window.location.href)
+          if (layout === 'vertical') {
+            url.searchParams.set('layout', layout)
+          } else {
+            url.searchParams.delete('layout')
+          }
+          history.replaceState(null, '', url)
+        }
+
+        updateCode()
+      }
+
+      function applyUid(rawValue, updateUrl = true) {
+        const uid = rawValue.trim()
+
+        if (!isValidUid(uid)) {
+          input.setAttribute('aria-invalid', 'true')
+          status.textContent = '请输入 1–20 位纯数字 UID'
+          return false
+        }
+
+        input.removeAttribute('aria-invalid')
+        input.value = uid
+        status.textContent = `正在读取 UID ${uid}…`
+        card.setAttribute('uid', uid)
+
+        if (updateUrl) {
+          const url = new URL(window.location.href)
+          url.searchParams.set('uid', uid)
+          history.replaceState(null, '', url)
+        }
+
+        updateCode()
+        return true
+      }
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault()
+        applyUid(input.value)
+      })
+
+      exampleButton.addEventListener('click', () => {
+        applyUid(DEFAULT_UID)
+      })
 
       for (const button of layoutButtons) {
         button.addEventListener('click', () => {
-          const layout = button.dataset.layout
-          card.setAttribute('layout', layout)
-
-          for (const item of layoutButtons) {
-            item.setAttribute(
-              'aria-pressed',
-              String(item.dataset.layout === layout),
-            )
-          }
+          applyLayout(button.dataset.layout)
         })
       }
+
+      card.addEventListener('bilibili-user-loaded', (event) => {
+        status.textContent = `已加载 ${event.detail.profile.name}（UID ${event.detail.profile.uid}）`
+      })
+
+      card.addEventListener('bilibili-user-error', (event) => {
+        status.textContent = event.detail.message
+      })
+
+      copyButton.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(usageCode.textContent)
+          copyButton.textContent = '已复制'
+          window.setTimeout(() => {
+            copyButton.textContent = '复制代码'
+          }, 1600)
+        } catch {
+          copyButton.textContent = '复制失败'
+        }
+      })
+
+      const initialUid = isValidUid(params.get('uid') || '')
+        ? params.get('uid')
+        : DEFAULT_UID
+      const initialLayout = params.get('layout') === 'vertical'
+        ? 'vertical'
+        : 'horizontal'
+
+      input.value = initialUid
+      applyLayout(initialLayout, false)
+      applyUid(initialUid, false)
     </script>
   </body>
 </html>

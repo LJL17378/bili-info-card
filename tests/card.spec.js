@@ -88,3 +88,35 @@ test('switches between horizontal and vertical layouts', async ({ page }) => {
   expect(box.width).toBeLessThanOrEqual(300)
   expect(box.height).toBeGreaterThan(380)
 })
+
+test('previews a custom uid and keeps the URL and code in sync', async ({ page }) => {
+  await page.route('**/api/bilibili/user/2', (route) =>
+    route.fulfill({
+      contentType: 'application/json',
+      json: { profile: { ...fixture.profile, uid: '2', name: '自定义用户' } },
+    }),
+  )
+  await page.goto('/')
+
+  await page.getByLabel('哔哩哔哩 UID').fill('2')
+  await page.getByRole('button', { name: '生成预览 →' }).click()
+
+  const card = page.locator('bilibili-user-card')
+  await expect(card).toHaveAttribute('uid', '2')
+  await expect(card.locator('.name')).toHaveText('自定义用户')
+  await expect(page).toHaveURL(/\?uid=2$/)
+  await expect(page.locator('#usage-code')).toContainText('uid="2"')
+  await expect(page.locator('#uid-status')).toContainText('自定义用户')
+})
+
+test('shows inline validation for an invalid preview uid', async ({ page }) => {
+  await page.goto('/')
+
+  const input = page.getByLabel('哔哩哔哩 UID')
+  await input.fill('not-a-uid')
+  await page.getByRole('button', { name: '生成预览 →' }).click()
+
+  await expect(input).toHaveAttribute('aria-invalid', 'true')
+  await expect(page.locator('#uid-status')).toHaveText('请输入 1–20 位纯数字 UID')
+  await expect(page.locator('bilibili-user-card')).toHaveAttribute('uid', '7900967')
+})
