@@ -298,6 +298,65 @@ template.innerHTML = `
       }
     }
 
+    :host([layout="vertical"]) {
+      max-width: var(--bic-vertical-max-width, 300px);
+    }
+
+    :host([layout="vertical"]) .banner,
+    :host([layout="vertical"]) .profile {
+      min-height: 228px;
+    }
+
+    :host([layout="vertical"]) .profile {
+      align-items: flex-start;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 18px;
+    }
+
+    :host([layout="vertical"]) .avatar-wrap {
+      flex-basis: 70px;
+      width: 70px;
+      height: 70px;
+    }
+
+    :host([layout="vertical"]) .stats {
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding: 5px 16px 8px;
+    }
+
+    :host([layout="vertical"]) .stat {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 43px;
+      padding: 8px 3px;
+      text-align: left;
+    }
+
+    :host([layout="vertical"]) .stat + .stat::before {
+      top: 0;
+      right: 0;
+      bottom: auto;
+      left: 0;
+      width: auto;
+      height: 1px;
+    }
+
+    :host([layout="vertical"]) .stat:nth-child(3)::before {
+      display: block;
+    }
+
+    :host([layout="vertical"]) .stat-value {
+      order: 2;
+    }
+
+    :host([layout="vertical"]) .stat-label {
+      margin-top: 0;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .card {
         transition: none;

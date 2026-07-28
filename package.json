@@ -1,6 +1,6 @@
 {
   "name": "bili-info-card",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A framework-agnostic Bilibili profile Web Component",
   "type": "module",
   "main": "./dist/bilibili-user-card.js",

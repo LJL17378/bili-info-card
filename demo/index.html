@@ -63,6 +63,38 @@
         margin-top: 40px;
       }
 
+      .preview {
+        min-width: 0;
+      }
+
+      .layout-switch {
+        display: inline-flex;
+        gap: 4px;
+        margin-bottom: 14px;
+        padding: 4px;
+        background: rgb(255 255 255 / 82%);
+        border: 1px solid #e3e5e7;
+        border-radius: 999px;
+        box-shadow: 0 5px 18px rgb(24 25 28 / 7%);
+      }
+
+      .layout-switch button {
+        padding: 7px 14px;
+        color: #61666d;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        background: transparent;
+        border: 0;
+        border-radius: 999px;
+      }
+
+      .layout-switch button[aria-pressed="true"] {
+        color: #fff;
+        background: #fb7299;
+      }
+
       bilibili-user-card {
         --bic-primary: #fb7299;
       }
@@ -111,7 +143,16 @@
       </p>
 
       <section class="showcase">
-        <bilibili-user-card uid="7900967"></bilibili-user-card>
+        <div class="preview">
+          <div class="layout-switch" aria-label="卡片排版方向">
+            <button type="button" data-layout="horizontal" aria-pressed="true">横向</button>
+            <button type="button" data-layout="vertical" aria-pressed="false">垂直</button>
+          </div>
+          <bilibili-user-card
+            uid="7900967"
+            endpoint="/api/bilibili/user/{uid}"
+          ></bilibili-user-card>
+        </div>
 
         <div class="usage">
           <h2>最小用法</h2>
@@ -128,5 +169,24 @@
         </div>
       </section>
     </main>
+
+    <script>
+      const card = document.querySelector('bilibili-user-card')
+      const layoutButtons = document.querySelectorAll('[data-layout]')
+
+      for (const button of layoutButtons) {
+        button.addEventListener('click', () => {
+          const layout = button.dataset.layout
+          card.setAttribute('layout', layout)
+
+          for (const item of layoutButtons) {
+            item.setAttribute(
+              'aria-pressed',
+              String(item.dataset.layout === layout),
+            )
+          }
+        })
+      }
+    </script>
   </body>
 </html>

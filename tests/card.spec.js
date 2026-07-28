@@ -68,3 +68,23 @@ test('stays usable at a narrow mobile width', async ({ page }) => {
   await expect(card.locator('.stats')).toHaveCSS('grid-template-columns', /.+ .+/)
   expect((await card.boundingBox()).width).toBeLessThanOrEqual(288)
 })
+
+test('switches between horizontal and vertical layouts', async ({ page }) => {
+  await page.goto('/')
+  const card = page.locator('bilibili-user-card')
+  const stats = card.locator('.stats')
+
+  await expect(card).not.toHaveAttribute('layout')
+  await expect(stats).toHaveCSS('grid-template-columns', /.+ .+ .+ .+/)
+
+  await card.evaluate((element) => {
+    element.setAttribute('layout', 'vertical')
+  })
+
+  await expect(card).toHaveAttribute('layout', 'vertical')
+  await expect(stats).toHaveCSS('grid-template-columns', /^(?!.* ).+$/)
+
+  const box = await card.boundingBox()
+  expect(box.width).toBeLessThanOrEqual(300)
+  expect(box.height).toBeGreaterThan(380)
+})

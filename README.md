@@ -25,6 +25,15 @@ npm run dev
 <bilibili-user-card uid="7900967"></bilibili-user-card>
 ```
 
+默认使用横向排版；需要更窄、更长的卡片时使用垂直排版：
+
+```html
+<bilibili-user-card
+  uid="7900967"
+  layout="vertical"
+></bilibili-user-card>
+```
+
 组件默认请求 `https://bili-info-card.vercel.app/api/bilibili/user/{uid}`，因此放在其他
 博客或框架里也只需填写 UID。自行部署后端时，可通过 `endpoint` 覆盖地址；`{uid}` 会被
 自动替换：
@@ -74,6 +83,7 @@ Next.js App Router 中，请在带有 `"use client"` 的组件内动态引入，
 ## 可配置项
 
 - `uid`：必填，纯数字 B 站 UID。
+- `layout`：可选，`horizontal` 或 `vertical`；默认 `horizontal`。
 - `endpoint`：可选，API 地址模板；默认使用本项目已部署的 Vercel API。
 - `link-target`：可选，点击后的窗口目标；默认 `_blank`。
 
@@ -84,6 +94,7 @@ bilibili-user-card {
   --bic-primary: #fb7299;
   --bic-radius: 24px;
   --bic-max-width: 620px;
+  --bic-vertical-max-width: 320px;
   --bic-background: #fff;
   --bic-text: #18191c;
   --bic-muted: #9499a0;
